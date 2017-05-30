@@ -4,8 +4,10 @@ var imageminMozjpeg = require('imagemin-mozjpeg');
 var imageminOptipng = require('imagemin-optipng');
 var imageminSvgo = require('imagemin-svgo');
 var imageminPngquant = require('imagemin-pngquant');
+var imageminWebp = require('imagemin-webp');
 var loaderUtils = require('loader-utils');
 var assign = require('object-assign');
+var path = require('path')
 
 /**
  * Basically the getLoaderConfig() function from loader-utils v0.2.
@@ -17,6 +19,25 @@ function getLegacyLoaderConfig(loaderContext, defaultConfigKey) {
     return assign({}, options, loaderContext.options[configKey]);
   }
   return options;
+}
+
+function emitWebp(content, conf, cb) {
+  // var conf = conf.webp||{enabled:false}
+  if (conf.webp.enabled === false) return;
+  console.log(conf.name)
+  var pathWebp = path.basename(conf.name)
+  loaderUtils.interpolateName(this, pathWebp+'.webp', {
+    content: content,
+    regExp: query.regExp
+  });
+
+  imagemin.buffer(content, { plugins: { webp: conf.webp } })
+    .then(data => {
+      this.emitFile(pathWebp, data);
+    })
+    .catch(err => {
+      callback(err);
+    });
 }
 
 module.exports = function(content) {
@@ -79,6 +100,8 @@ module.exports = function(content) {
       .catch(err => {
         callback(err);
       });
+
+    emitWebp(content, config, callback)
   }
 };
 

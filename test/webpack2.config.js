@@ -29,6 +29,9 @@ var loaderOptions = {
   optipng: {
     optimizationLevel: 7,
     interlaced: false
+  },
+  webp: {
+    quality:50
   }
 }
 
